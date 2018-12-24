@@ -107,7 +107,7 @@ class ImageX{
 		} else {
 			attachImageToLayer(image, 1, layerName, Std.int(x), Std.int(y), 1);
 		}
-		setOriginForImage(image, 0.5, 0.5);
+		setOriginForImage(image, image.width/2/Engine.SCALE, image.height/2/Engine.SCALE);
 	}
 	
 	public inline function kill(){removeImage(image);}
@@ -180,6 +180,24 @@ class ParticleSpawner{
 	
 	private var canKillParticles = false;
 	private var isActive = true;
+	
+	public static function create(fileName : String, x : Float, y : Float, type : String){
+		var p : ParticleSpawner = null;
+		switch(type){
+			case "smoke":
+				var p = new ParticleSpawner("particle.png", x, y, -90, ParticleSpawner.FadeOut, 2, 0, 1, 0.015, 0, 0, 200, 2500);
+				p.directionVariation = 6;
+			case "smokesmall":
+				var p = new ParticleSpawner("particle.png", x, y, -90, ParticleSpawner.FadeOut, 2, 0, 1, 0.015, 0, 0, 200, 2500);
+				p.directionVariation = 6;
+				p.particleSpeed = 1.85;
+			case "smokenorotate":
+				var p = new ParticleSpawner("particle.png", x, y, -90, ParticleSpawner.FadeOut, 0, 0, 1, 0.015, 0, 0, 200, 2500);
+				p.directionVariation = 6;
+		}
+		return p;
+		
+	}
 
 	public function new(fileName : String,
 						_x : Float,
@@ -191,7 +209,9 @@ class ParticleSpawner{
 						_defaultSize : Float,
 						_growSpeed : Float,
 						_gravityX : Float,
-						_gravityY : Float
+						_gravityY : Float,
+						_particleFrequency : Int,
+						_particleLifespan : Int
 						){
 		particles = new Queue<ImageX>();
 		imageBase = getExternalImage(fileName);
@@ -203,6 +223,8 @@ class ParticleSpawner{
 		growSpeed = _growSpeed;
 		gravityX = _gravityX;
 		gravityY = _gravityY;
+		particleFrequency = _particleFrequency;
+		particleLifespan = _particleLifespan;
 		switch(fadeType){
 			case 1: opacitySpeed = 20 / particleLifespan;		// Fade Out
 			case 2: opacitySpeed = -20 / particleLifespan;		// Fade In
