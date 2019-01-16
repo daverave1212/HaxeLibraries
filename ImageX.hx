@@ -113,6 +113,10 @@ class ImageX
 		return image.height / Engine.SCALE;
 	}
 	
+	public inline function kill(){
+		removeImage(image);
+	}
+	
 }
 
 
