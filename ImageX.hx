@@ -100,6 +100,11 @@ class ImageX
 		image.y = y * Engine.SCALE;
 	}
 	
+	public inline function setXY(x : Float, y : Float){
+		setX(x);
+		setY(y);
+	}
+	
 	public inline function getWidth(){
 		return image.width / Engine.SCALE;
 	}
