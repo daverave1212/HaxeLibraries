@@ -1,4 +1,4 @@
-package scripts;
+
 
 class InventoryItem<T>{
 
@@ -15,9 +15,9 @@ class InventoryItem<T>{
 
 class Inventory<T>
 {
-	var matrix : Matrix<T>;
-	var nRows : Int;
-	var nCols : Int;
+	public var matrix : Matrix<T>;
+	public var nRows : Int;
+	public var nCols : Int;
 	
 	public function new(_nRows : Int, _nCols : Int){
 		nRows = _nRows;
@@ -66,6 +66,18 @@ class Inventory<T>
 	
 	public function get(i : Int, j : Int){
 		return matrix.get(i, j);
+	}
+	
+	// Returns a Vector2Int 
+	public function find(t : T) : Vector2Int{
+		for(i in 0...nRows){
+			for(j in 0...nCols){
+				if(matrix.get(i, j) == t){
+					return new Vector2Int(j, i);
+				}
+			}
+		}
+		return null;
 	}
 	
 	public function set(i : Int, j : Int, t : T){

@@ -1,4 +1,4 @@
-package scripts;
+
 
 
 import com.stencyl.graphics.G;
@@ -42,40 +42,87 @@ import box2D.dynamics.B2Body;
 import box2D.dynamics.B2Fixture;
 import box2D.dynamics.joints.B2Joint;
 
-class Log extends SceneScript
+import motion.Actuate;
+import motion.easing.Back;
+import motion.easing.Cubic;
+import motion.easing.Elastic;
+import motion.easing.Expo;
+import motion.easing.Linear;
+import motion.easing.Quad;
+import motion.easing.Quart;
+import motion.easing.Quint;
+import motion.easing.Sine;
+
+/*"
+	.paddingLeft   = _
+	.paddingRight  = _
+	.paddingTop	   = _
+	.paddingBottom = _
+	.setPadding(_)			// sets all paddings
+	
+	.setBorderColor('FFFFFF')
+	
+	.addChild(UIComponent)
+	
+	
+"*/
+
+class UIView
 {
-	public static var theLog : Log;
-	public static var nRows : Int = 3;
-	public static var rows : Array<String>;
+	public var name : String;
+	private var loadFunction : UIView->UIComponent;
+	public var root : UIComponent;
 	
-	public static function start(?_rows : Int){
-		theLog = new Log();
-		if(_rows != null) nRows = _rows;
-		rows = new Array<String>();
-		for(i in 0...nRows){
-			rows.push("");
+	public function new(n : String, _loadFunction : UIView->UIComponent){
+		name = n;
+		loadFunction = _loadFunction;
+	}
+	
+	public function load(){
+		if(loadFunction != null){
+			root = loadFunction(this);
+		} else {
+			trace("ERROR: UIView " + name + " has no loadFunction.");
 		}
 	}
 	
-	public static function go(s : String){
-		for(i in 0...rows.length - 1){
-			rows[i] = rows[i+1];
-		}
-		rows[rows.length - 1] = s;
+	public function show(){
+		root.show();
 	}
 	
-	public function new(){
-		super();
-		addWhenDrawingListener(null, function(g:G, x:Float, y:Float, list:Array<Dynamic>):Void{
-			drawConsole(g);
-		});
+	public function hide(){
+		root.hide();
 	}
 	
-	public function drawConsole(g : G){
-		for(i in 0...rows.length){
-			g.drawString(rows[i], 10 + getScreenX(), getScreenY() + 10 + i * 20);
-		}
+	public function get(elementName : String){
+		return root.get(elementName);
 	}
-	
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,15 +1,3 @@
-/*
-    Stencyl exclusively uses the Haxe programming language. 
-    Haxe is similar to ActionScript and JavaScript.
-    
-    Want to use native code or make something reusable? Use the Extensions Framework instead.
-    http://www.stencyl.com/help/view/engine-extensions/
-    
-    Learn more about Haxe and our APIs
-    http://www.stencyl.com/help/view/haxe/
-*/
-
-package scripts;
 
 
 import com.stencyl.graphics.G;
@@ -93,7 +81,7 @@ import com.stencyl.graphics.shaders.BloomShader;
 class TextBoxPlayable extends TextBox{
 
 	
-	public var interval		: Float = 0.05;
+	public var interval		: Float = 0.02;
 	
 	private var currentLine	 	: Int = 0;
 	private var currentLetter	: Int = 0;

@@ -1,5 +1,3 @@
-package scripts;
-
 
 
 import com.stencyl.graphics.G;
@@ -85,7 +83,7 @@ import com.stencyl.graphics.shaders.BloomShader;
  
  /* API:
  
-	new(width, height, x, y)
+	new(width, height, x, y, font)
 	.startDrawing()
 	.stopDrawing()
 	
@@ -159,7 +157,7 @@ class TextBox extends SceneScript{
 		var currentLine	: Int = 0;
 		var currentWord : Int = 0;
 		nLines = 0;
-		while(currentWord < wordList.length -1){ //while currentLine width < w
+		while(currentWord < wordList.length){ //while currentLine width < w
 			nLines++;
 			lines[currentLine] = "";
 			while(font.font.getTextWidth(lines[currentLine] + " " + wordList[currentWord]) / Engine.SCALE < w && wordList[currentWord] != "\n" && currentWord < wordList.length){

@@ -1,4 +1,3 @@
-package scripts;
 
 import com.stencyl.graphics.G;
 
@@ -89,8 +88,8 @@ class ResourceBar
 			isSimple = simple;
 		}
 		runPeriodically(20, function(timeTask:TimedTask):Void{
-			if(isDestructing){
-				return;}
+			if(isDestructing)
+				return;
 			updateHealthBar();
 		}, null);
 	}
@@ -111,6 +110,10 @@ class ResourceBar
 	}
 	
 	public function set(value : Float){
+		if(isSimple){
+			scaleTo(value);
+			return;
+		}
 		if(value > destinationValue){
 			isIncreasing = true;
 			isDecreasing = false;
@@ -156,6 +159,7 @@ class ResourceBar
 	}
 	
 	private function updateHealthBar(){
+		if(isSimple) return;
 		if(currentValue > destinationValue + onePercentOfMax){
 			scaleTo(currentValue);
 			currentValue -= onePercentOfMax;
@@ -164,27 +168,6 @@ class ResourceBar
 			currentValue += onePercentOfMax;
 		}
 		return;
-		// Redundant code below, might need another time if the above doesn't behave properly
-		/*
-		if(isDecreasing){
-			if(currentValue > destinationValue){
-				scaleTo(currentValue);
-				currentValue -= onePercentOfMax;
-				if(currentValue < destinationValue){
-					currentValue = destinationValue;
-				}
-			}
-		} else if(isIncreasing){
-			if(currentValue < destinationValue){
-				scaleTo(currentValue);
-				currentValue += onePercentOfMax;
-				if(currentValue > destinationValue){
-					currentValue = destinationValue;
-				}
-			}
-		} */
-		
-		
 	}
 	
 	

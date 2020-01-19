@@ -1,6 +1,4 @@
 
-package scripts;
-
 
 import com.stencyl.graphics.G;
 import com.stencyl.graphics.BitmapWrapper;
@@ -54,22 +52,138 @@ import motion.easing.Quart;
 import motion.easing.Quint;
 import motion.easing.Sine;
 
+
+/*"
+
+	--- REQUIRES: U.hx
+	
+	API:
+	new(path/BitmapData, layerName)
+
+	.isShown
+	.isAlive
+	.changeImage(path)
+	.show()
+	.hide()
+	.getX/Y(_)
+	.setX/Y(_)
+	.addX/Y(_)
+	.setXY(_, _)
+	.getWidth()
+	.getHeight()
+	.setWidth()
+	.setHeight()
+	.resetWidth()
+	.resetHeight()
+	.anchorToScreen()
+	.kill()
+
+
+"*/
+
+// A wrapper for ImageX which can hold some data, like speed and age
+// Required for sliding images in ImageX slider part
+class ImageXExtended{
+	public var image  : ImageX;
+	public var xSpeed : Float = 0;
+	public var ySpeed : Float = 0;
+	public var age	  : Int = 0;		// In miliseconds
+	public var maxAge : Int = 0;		// In miliseconds
+	
+	public function new(img : ImageX){
+		image = img;
+	}
+	
+}
+
+class ImageXSlider{
+
+	public static var imagesBeingSlid : Array<ImageXExtended>;
+	public static inline var Slide_Frequency = 20;
+	
+	// This is automatically done by U.changeScene
+	public static function start(){
+		imagesBeingSlid = [];
+		U.repeat(moveImages, Slide_Frequency);
+	}
+	
+	// Helper function called by every tick(..)
+	private static function moveImages(){
+		for(i in 0...imagesBeingSlid.length){
+			var img = imagesBeingSlid[i];
+			if(img == null)
+				continue;
+			img.image.addX(img.xSpeed);
+			img.image.addY(img.ySpeed);
+			img.age += Slide_Frequency;
+			if(img.age >= img.maxAge){
+				imagesBeingSlid[i] = null;
+			}
+		}
+	}
+	
+	public static function slideImage(image : ImageX, destinationX : Float, destinationY : Float, overTime : Int){
+		var deltaX = destinationX - image.getX();
+		var deltaY = destinationY - image.getY();
+		var nTicks = overTime/Slide_Frequency;
+		var img = new ImageXExtended(image);
+		img.xSpeed = deltaX/nTicks;
+		img.ySpeed = deltaY/nTicks;
+		img.maxAge = overTime;
+		var pos = U.getFirstNull(imagesBeingSlid);
+		if(pos == -1){
+			imagesBeingSlid.push(img);
+		} else {
+			imagesBeingSlid[pos] = img;
+		}
+	}
+	
+}
+
 class ImageX
 {
+
+	// Called automatically by U.changeScene
+	public static function _startSlidingImages(){
+		ImageXSlider.start();
+	}
 	
-	var image : BitmapWrapper;
-	var layerName : String;
+	public var image : BitmapWrapper;
+	public var isAttachedToScreen = true;
+	public var layerName : String = "!NONE";
+	public var isAlive = true;
+	public var isShown = true;
+	private var originalWidth  : Float = 0;
+	private var originalHeight : Float = 0;
 	
-	public function new(?path : String, ?bitmapData : BitmapData, layerName : String){
+	public function new(?path : String, ?bitmapData : BitmapData, ?layerName : String){
 		if(path != null){
 			image = new BitmapWrapper(new Bitmap(getExternalImage(path)));
 		} else if(bitmapData != null){
 			image = new BitmapWrapper(new Bitmap(bitmapData));
 		}
-		this.layerName = layerName;
-		attachImageToLayer(image, 1, layerName, Std.int(3), Std.int(4), 1);
+		if(image == null){
+			var layerMessage = "";
+			if(layerName == null) layerMessage = '(unspecified)';
+			else layerMessage = '($layerName)';
+			if(path != null){
+				throw 'Error loading ImageX "$path" on layer $layerMessage';
+			} else {
+				throw 'Error loading ImageX from bitmapon layer $layerMessage';
+			}
+		}
+		if(layerName != null){
+			isAttachedToScreen = false;
+			this.layerName = layerName;
+			attachImageToLayer(image, 1, layerName, 0, 0, 1);
+		} else {
+			isAttachedToScreen = true;
+			attachImageToHUD(image, 0, 0);
+		}
 		image.scaleX = image.scaleX * Engine.SCALE;
 		image.scaleY = image.scaleY * Engine.SCALE;
+		originalHeight = getHeight();
+		originalWidth  = getWidth();
 	}
 	
 	public function changeImage(path : String){
@@ -77,29 +191,70 @@ class ImageX
 		var oldY = getY();
 		removeImage(image);
 		image = new BitmapWrapper(new Bitmap(getExternalImage(path)));
-		attachImageToLayer(image, 1, layerName, Std.int(3), Std.int(4), 1);
+		attachImageToLayer(image, 1, layerName, 3, 4, 1);
 		image.scaleX = image.scaleX * Engine.SCALE;
 		image.scaleY = image.scaleY * Engine.SCALE;
 		setX(oldX);
 		setY(oldY);
 	}
 	
+	public function show(){
+		var oldX = getX();
+		var oldY = getY();
+		if(!isAlive || isShown) return;
+		if(isAttachedToScreen) attachImageToHUD(image, 0, 0);
+		else attachImageToLayer(image, 1, layerName, 3, 4, 1);
+		setX(oldX);
+		setY(oldY);
+		isShown = true;
+	}
+	
+	public function hide(){
+		if(!isAlive || !isShown) return;
+		removeImage(image);
+		isShown = false;
+	}
+	
 	public inline function getX(){
 		return image.x / Engine.SCALE;
+	}
+
+	public inline function getXScreen(){
+		return image.x / Engine.SCALE - Std.int(getScreenX());
 	}
 	
 	public inline function getY(){
 		return image.y / Engine.SCALE;
 	}
+
+	public inline function getYScreen(){
+		return image.y / Engine.SCALE - Std.int(getScreenY());
+	}
 	
 	public inline function setX(x : Float){
 		image.x = x * Engine.SCALE;
+	}
+
+	public inline function setXScreen(x : Float){
+		image.x = x * Engine.SCALE + Std.int(getScreenX());
 	}
 	
 	public inline function setY(y : Float){
 		image.y = y * Engine.SCALE;
 	}
+
+	public inline function setYScreen(y : Float){
+		image.y = y * Engine.SCALE + Std.int(getScreenY());
+	}
 	
+	public inline function addX(x : Float){
+		setX(getX() + x);
+	}
+	
+	public inline function addY(y : Float){
+		setY(getY() + y);
+	}
+
 	public inline function setXY(x : Float, y : Float){
 		setX(x);
 		setY(y);
@@ -113,10 +268,40 @@ class ImageX
 		return image.height / Engine.SCALE;
 	}
 	
-	public inline function kill(){
-		removeImage(image);
+	public function setWidth(w : Float){	// In pixels
+		var perc = w / originalWidth;
+		var currentHeightPerc = getHeight() / originalHeight;
+		growImageTo(image, perc, currentHeightPerc, 0, Linear.easeNone);
 	}
 	
+	public function setHeight(h : Float){	// In pixels
+		var perc = h / originalHeight;
+		var currentWidthPerc = getWidth() / originalWidth;
+		growImageTo(image, currentWidthPerc, perc, 0, Linear.easeNone);
+	}
+	
+	public inline function resetWidth(){
+		setWidth(originalWidth);
+	}
+	
+	public inline function resetHeight(){
+		setHeight(originalHeight);
+	}
+	
+	public inline function kill(){
+		removeImage(image);
+		image = null;
+		isAlive = false;
+	}
+	
+	public inline function centerOnScreen(){
+		setX(getScreenX() + (getScreenWidth() - getWidth()) / 2);
+		setY(getScreenY() + (getScreenHeight() - getHeight()) / 2);
+	}
+	
+	public function anchorToScreen(){
+		attachImageToHUD(image, Std.int(getX()), Std.int(getY()));
+	}
 }
 
 

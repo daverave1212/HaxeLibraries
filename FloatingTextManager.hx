@@ -1,4 +1,3 @@
-package scripts;
 
 import com.stencyl.graphics.G;
 
@@ -49,7 +48,7 @@ import motion.easing.Sine;
 */
 
 
-/* private */ class Text_{
+class _Text{
 	public var x : Float;
 	public var y : Float;
 	public var text : String = "";
@@ -85,25 +84,25 @@ import motion.easing.Sine;
 class FloatingTextManager extends SceneScript
 {
 	
-	public var texts : Array<Text_>;
+	public var texts : Array<_Text>;
 	
 	var screenHeight : Float;
-	var gravityIncrementY : Float = 0.2;
-	var gravityDefaultY : Float = -3;
-	var gravityDefaultX : Float = -3;
+	var gravityIncrementY : Float = 0.1;
+	var gravityDefaultY : Float = -2;
+	var gravityDefaultX : Float = -2;
 	private var font : Font = null;
 	
 	public function new(f : Font, ?bouncinessIncrement : Float){
 		super();
 		font = f;
-		texts = new Array<Text_>();
+		texts = new Array<_Text>();
 		if(bouncinessIncrement != null){
 			gravityIncrementY = gravityIncrementY * (bouncinessIncrement + 1);
 			gravityDefaultY = gravityDefaultY * (bouncinessIncrement + 1);
 			gravityDefaultX = gravityDefaultX * (bouncinessIncrement/2 + 1);
 		}
 		screenHeight = getScreenHeight();
-		runPeriodically(20, function(timeTask:TimedTask):Void{
+		runPeriodically(10, function(timeTask:TimedTask):Void{
 			updateGravities();
 		}, null);
 		addWhenDrawingListener(null, function(g:G, x:Float, y:Float, list:Array<Dynamic>):Void{
@@ -124,18 +123,18 @@ class FloatingTextManager extends SceneScript
 				txt = s;
 			}
 		}
-		var t : Text_ = null;
+		var t : _Text = null;
 		if(right != null){
 			if(right == true){
-				t = new Text_(txt, x, y, gravityDefaultY, (-1) * gravityDefaultX);
+				t = new _Text(txt, x, y, gravityDefaultY, (-1) * gravityDefaultX);
 			}
 		} else {
-			t = new Text_(txt, x, y, gravityDefaultY, gravityDefaultX);
+			t = new _Text(txt, x, y, gravityDefaultY, gravityDefaultX);
 		}
 		addText(t);
 	}
 	
-	private function addText(t : Text_){
+	private function addText(t : _Text){
 		for(i in 0...texts.length){
 			if(texts[i] != null){
 				if(texts[i].isAlive == false){

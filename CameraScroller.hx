@@ -1,4 +1,3 @@
-package scripts;
 
 import com.stencyl.behavior.Script;
 import com.stencyl.behavior.Script.*;
@@ -12,7 +11,7 @@ import com.stencyl.Input;
 import com.stencyl.Key;
 import com.stencyl.utils.Utils;
 
-/*
+/*"
 	How to use:
 	A) Code mode
 	- Initialize it with CameraScroller.initialize(?smooth)
@@ -47,7 +46,7 @@ class CameraScroller extends SceneScript
 	var isDraggingCamera : Bool = false;
 	var isVerticalScrollEnabled : Bool = false;
 	var isHorizontalScrollEnabled : Bool = false;
-	var isCameraSmoothingEnabled : Bool = true;
+	var isCameraSmoothingEnabled : Bool = false;
 	
 	private var timeSinceClick : Float = 0;
 	private var timeSinceSmoothingCamera : Float = 0;
@@ -66,8 +65,8 @@ class CameraScroller extends SceneScript
 		cameraScroller = new CameraScroller();
 		cameraScroller.isVerticalScrollEnabled = true;
 		cameraScroller.isHorizontalScrollEnabled = true;
-		if(smooth == true){
-			cameraScroller.isCameraSmoothingEnabled = true;
+		if(smooth != null){
+			cameraScroller.isCameraSmoothingEnabled = smooth;
 		}
 	}
 
